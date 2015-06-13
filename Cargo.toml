@@ -1,0 +1,7 @@
+[package]
+name = "circular_renderer"
+version = "0.1.0"
+authors = ["Jonesey13 <adj27@cam.ac.uk>"]
+
+[dependencies]
+glium = "*"
