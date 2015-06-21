@@ -1,0 +1,50 @@
+#version 330 core
+
+in vec4 polar;
+in vec4 color_vertex;
+
+uniform vec2 center;
+uniform vec2 window;
+
+out vec4 color;
+
+bool angleCompare(in float a, in vec2 range);
+
+void main()
+{
+  vec2 fragCoord = 2 * vec2(gl_FragCoord.x / window.x, gl_FragCoord.y / window.y )
+                     - vec2(1, 1);
+  fragCoord -= center;
+  float fragRadius = dot(fragCoord, fragCoord);
+  bool radialOverlap = fragRadius >= dot(polar.x, polar.x)
+    && fragRadius <= dot(polar.y, polar.y);
+
+  bool angleOverlap = true;
+  if(radialOverlap)
+    {
+      float angle = atan(fragCoord.y, fragCoord.x);
+      angle = degrees(angle) / 360.0f;
+      angleOverlap = angleCompare(angle, polar.zw);
+    }
+   if( angleOverlap && radialOverlap)
+     color = color_vertex;
+   else
+     color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+}
+
+bool angleCompare(in float ang, in vec2 range)
+{
+   ang -=  floor(ang);
+   range.x -= floor(range.x);
+   range.y -= floor(range.y);
+
+  bool isless = range.x <= range.y;
+  if (isless)
+    {
+      return ang <=  range.y &&  ang >= range.x;
+    }
+  else
+    {
+      return ang >= range.x ||  ang <= range.y;
+    }
+}

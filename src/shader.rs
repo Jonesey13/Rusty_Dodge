@@ -1,4 +1,3 @@
-
 use std::io::prelude::*;
 use std::fs::File;
 pub struct Shader{
