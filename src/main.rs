@@ -30,7 +30,7 @@ fn main() {
 
     implement_vertex!(Vertices, polar_input, color_input);
 
-    let vertices = [[0.25, 0.5, -0.05, 0.25, 1.0, 1.0, 1.0, 1.0]];
+    let vertices = [[0.25, 0.5, 0.20, 0.65, 1.0, 1.0, 1.0, 1.0]];
 
     let shape: Vec<_> = vertices.iter().map(|&x| Vertices { polar_input: [x[0], x[1], x[2], x[3]], color_input: [x[4], x[5], x[6], x[7]]}).collect();
 

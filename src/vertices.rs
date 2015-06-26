@@ -1,5 +1,6 @@
 use std::slice::IterMut;
 
+#[allow(dead_code)]
 pub fn set_polar_vertices(vertices: &mut IterMut<f32>, polar: & Vec<f32>, color: & Vec<f32>){
     for i in 0..4{
         let mut v =  vertices.next().unwrap();
@@ -15,7 +16,7 @@ pub fn set_polar_vertices(vertices: &mut IterMut<f32>, polar: & Vec<f32>, color:
     }
 }
 
-
+#[allow(dead_code)]
 pub fn set_polar_indices(index: &mut IterMut<i32>, loops: i32){
     for i in 0..loops{
         *index.next().unwrap() = 0 + 5 * i;
