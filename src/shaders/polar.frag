@@ -1,7 +1,7 @@
 #version 330 core
 
-in vec4 polar;
-in vec4 color_vertex;
+in vec4 polar_geometry;
+in vec4 color_geometry;
 
 uniform vec2 center;
 uniform vec2 window;
@@ -16,18 +16,18 @@ void main()
                      - vec2(1, 1);
   fragCoord -= center;
   float fragRadius = dot(fragCoord, fragCoord);
-  bool radialOverlap = fragRadius >= dot(polar.x, polar.x)
-    && fragRadius <= dot(polar.y, polar.y);
+  bool radialOverlap = fragRadius >= dot(polar_geometry.x, polar_geometry.x)
+    && fragRadius <= dot(polar_geometry.y, polar_geometry.y);
 
   bool angleOverlap = true;
   if(radialOverlap)
     {
       float angle = atan(fragCoord.y, fragCoord.x);
       angle = degrees(angle) / 360.0f;
-      angleOverlap = angleCompare(angle, polar.zw);
+      angleOverlap = angleCompare(angle, polar_geometry.zw);
     }
    if( angleOverlap && radialOverlap)
-     color = color_vertex;
+     color = color_geometry;
    else
      color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 }
