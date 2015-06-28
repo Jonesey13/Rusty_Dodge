@@ -2,7 +2,7 @@
 extern crate glium;
 
 mod shader;
-mod vertices;
+mod polar_game;
 
 /*
 #[test]
@@ -17,6 +17,7 @@ fn main() {
     use glium::glutin::VirtualKeyCode;
     use glium::draw_parameters::LinearBlendingFactor;
     use glium::draw_parameters::BlendingFunction;
+    use polar_game::object::Part;
 
     let screen_width = 800;
     let screen_height = 600;
@@ -24,15 +25,17 @@ fn main() {
 
     #[derive(Copy, Clone)]
     struct Vertices {
-        polar_input: [f32; 4],
-        color_input: [f32; 4]
+        polar: [f32; 4],
+        color: [f32; 4]
     }
 
-    implement_vertex!(Vertices, polar_input, color_input);
+    let game = polar_game::PolarGame::new();
 
-    let vertices = [[0.25, 0.5, 0.20, 0.65, 1.0, 1.0, 1.0, 1.0]];
+    implement_vertex!(Vertices, polar, color);
 
-    let shape: Vec<_> = vertices.iter().map(|&x| Vertices { polar_input: [x[0], x[1], x[2], x[3]], color_input: [x[4], x[5], x[6], x[7]]}).collect();
+    let vertices: Vec<Part>  = game.get_rendering_list();
+
+    let shape: Vec<Vertices> = vertices.iter().map(|x| Vertices { polar: [x.radial[0], x.radial[1], x.angle[0], x.angle[1]], color: x.color}).collect();
 
     let vertex_buffer = glium::VertexBuffer::new(&display, shape);
 
