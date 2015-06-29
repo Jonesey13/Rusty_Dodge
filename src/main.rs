@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate glium;
+extern crate time;
 
 mod shader;
 mod polar_game;
@@ -20,6 +21,7 @@ fn main() {
         if handler.keys.exit{
             break 'main;
         }
+        handler.update_physics();
         handler.update_rendering();
         if handler.display.is_closed(){
             break;

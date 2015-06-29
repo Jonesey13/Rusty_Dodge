@@ -8,6 +8,7 @@ use glium::{DisplayBuild, Surface};
 use glium::draw_parameters::LinearBlendingFactor;
 use glium::draw_parameters::BlendingFunction;
 use polar_game::object::Part;
+use glium::glutin::ElementState::{Pressed, Released};
 
 
 
@@ -26,7 +27,7 @@ impl<'a> Handler<'a>{
     pub fn new() -> Handler<'a>{
         let screen_width = 800;
         let screen_height = 800;
-        let display = glium::glutin::WindowBuilder::new().with_dimensions(screen_width,screen_height).build_glium().unwrap();
+        let display = glium::glutin::WindowBuilder::new().with_vsync().with_dimensions(screen_width,screen_height).build_glium().unwrap();
 
         implement_vertex!(Vertices, polar, color);
 
@@ -59,8 +60,8 @@ impl<'a> Handler<'a>{
         };
 
         let vertices: Vec<Part>  = self.game.get_rendering_list();
-        let shape: Vec<Vertices> = vertices.iter().map(|x| Vertices { polar: [x.radial[0], x.radial[1], x.angle[0], x.angle[1]],
-                                                                      color: x.color}).collect();
+        let shape: Vec<Vertices> = vertices.iter().map(|p| Vertices { polar: [p.radial.x, p.radial.y, p.angle.x, p.angle.y],
+                                                                      color: p.color}).collect();
         self.vertex_buffer = glium::VertexBuffer::dynamic(&self.display, shape);
 
         let mut target = self.display.draw();
@@ -76,21 +77,41 @@ impl<'a> Handler<'a>{
 
     pub fn update_input(&mut self){
         let keys = &mut self.keys;
-        *keys = GliumKeys::new();
         for item in self.display.poll_events() {
             match item
             {
                 KeyboardInput(_, _, Some(VirtualKeyCode::Escape)) => keys.exit = true,
-                KeyboardInput(_, _, Some(VirtualKeyCode::Left)) => keys.left = true,
-                KeyboardInput(_, _, Some(VirtualKeyCode::Right)) => keys.right = true,
-                KeyboardInput(_, _, Some(VirtualKeyCode::Up)) => keys.up = true,
-                KeyboardInput(_, _, Some(VirtualKeyCode::Down)) => keys.down = true,
+                KeyboardInput(state, _, Some(VirtualKeyCode::Left)) => keys.left = state==Pressed,
+                KeyboardInput(state, _, Some(VirtualKeyCode::Right)) => keys.right = state==Pressed,
+                KeyboardInput(state, _, Some(VirtualKeyCode::Up)) => keys.up = state==Pressed,
+                KeyboardInput(state, _, Some(VirtualKeyCode::Down)) => keys.down = state==Pressed,
                 _ =>print!(""),
             }
         }
+        if keys.left{
+            self.game.input_keys.jump_angle = 1.0;
+        }
+        else if keys.right{
+            self.game.input_keys.jump_angle = -1.0;
+        }
+        else{
+            self.game.input_keys.jump_angle = 0.0;
+        }
+        if keys.up{
+            self.game.input_keys.jump_radial = 1.0;
+        }
+        else if keys.down{
+            self.game.input_keys.jump_radial = -1.0;
+        }
+        else{
+            self.game.input_keys.jump_radial = -0.0;
+        }
+
     }
 
-
+    pub fn update_physics(&mut self){
+        self.game.update_physics(1.0);
+    }
 }
 
 

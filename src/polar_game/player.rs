@@ -1,15 +1,13 @@
 use polar_game::object::{Part,Object};
-
+use polar_game::object::{Point};
 
 pub struct Player{
-    pub position: [f32; 2],
+    pub position: Point,
     pub parts: Vec<Part>
 }
 
-
-
 impl Object for Player{
-    fn set_position(&mut self, new_pos: [f32;2]){
+    fn set_position(&mut self, new_pos: Point){
         self.position = new_pos;
     }
 
@@ -17,8 +15,8 @@ impl Object for Player{
         let mut part_vec: Vec<Part> = Vec::new();
         for p in self.parts.iter(){
             let p_shift = Part{
-                radial: [p.radial[0] + self.position[0], p.radial[1] + self.position[0]],
-                angle: [p.angle[0] + self.position[1], p.angle[1] + self.position[1]],
+                radial: p.radial + Point{x: self.position.x, y: self.position.x},
+                angle: p.angle + Point{x: self.position.y, y: self.position.y},
                 color: p.color
             };
             part_vec.push(p_shift);
@@ -29,9 +27,9 @@ impl Object for Player{
 
 impl Player{
     pub fn new() -> Player{
-        let prts = vec![Part{radial: [0.0, 0.1],
-                          angle: [0.0, 0.1],
+        let prts = vec![Part{radial: Point{x: 0.0, y:0.1},
+                          angle: Point{x:0.0, y:0.1},
                               color: [1.0,1.0,1.0,1.0]}];
-        Player{position: [0.5,0.0], parts: prts}
+        Player{position: Point{x: 0.5, y:0.0}, parts: prts}
     }
 }
