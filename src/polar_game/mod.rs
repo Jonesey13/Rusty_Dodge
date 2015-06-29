@@ -7,7 +7,7 @@ use polar_game::object::{Part,Object};
 pub struct PolarGame{
     player: Player,
     current_time: f32,
-    pub input_keys: Input_Keys
+    pub input_keys: InputKeys
 }
 
 
@@ -18,7 +18,7 @@ impl PolarGame{
         PolarGame{
             player: Player::new(),
             current_time: 0.0,
-            input_keys: Input_Keys{
+            input_keys: InputKeys{
                 jump_angle: 0.0,
                 jump_radial: 0.0
             }
@@ -46,7 +46,7 @@ impl PolarGame{
 
 }
 
-pub struct Input_Keys{
+pub struct InputKeys{
     pub jump_angle: f32,
     pub jump_radial: f32
 }
