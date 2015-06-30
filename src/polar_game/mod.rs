@@ -25,19 +25,16 @@ impl PolarGame{
         }
     }
 
-    pub fn init(&self, game_time: f32){
-
-    }
-
-    pub fn update_input(&self){
-
-
+    pub fn init(&mut self, game_time: f32){
+        self.current_time = game_time;
     }
 
     pub fn update_physics(&mut self, game_time: f32){
         let shift = Point{x: self.input_keys.jump_radial,
                           y: self.input_keys.jump_angle};
-        self.player.position =  self.player.position + shift.mult(game_time/100.0);
+        let time_diff = game_time - self.current_time;
+        self.current_time = game_time;
+        self.player.position =  self.player.position + shift.mult(time_diff);
     }
 
     pub fn get_rendering_list(&self) -> Vec<Part>{
@@ -49,13 +46,4 @@ impl PolarGame{
 pub struct InputKeys{
     pub jump_angle: f32,
     pub jump_radial: f32
-}
-
-impl InputKeys{
-
-    pub fn new() -> InputKeys{
-        InputKeys{jump_angle: 0.0,
-                  jump_radial: 0.0}
-    }
-
 }

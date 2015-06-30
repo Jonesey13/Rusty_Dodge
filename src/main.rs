@@ -15,7 +15,7 @@ fn my_test() {
 
 fn main() {
     let mut handler = handler::Handler::new();
-
+    handler.init();
     'main: loop {
         handler.update_input();
         if handler.keys.exit{
