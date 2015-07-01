@@ -17,6 +17,7 @@ pub struct PolarGame{
     current_time: f64,
     time_til_flare: f64,
     previous_flare_time: f64,
+    start_time: f64,
     pub input_keys: InputKeys,
 }
 
@@ -33,20 +34,22 @@ impl PolarGame{
             },
             time_til_flare: 1.0,
             previous_flare_time: 0.0,
+            start_time: 0.0,
         }
     }
 
     pub fn init(&mut self, game_time: f64){
         self.current_time = game_time;
+        self.start_time = game_time;
         self.previous_flare_time = self.current_time;
         let mut rng = rand::thread_rng();
-        let exp = Exp::new(0.01);
-        self.time_til_flare = 1.0/exp.ind_sample(&mut rng);
+        let exp = Exp::new(1.0);
+        self.time_til_flare = exp.ind_sample(&mut rng);
     }
 
     pub fn update_physics(&mut self, game_time: f64){
         let shift = Point{x: self.input_keys.jump_radial,
-                          y: self.input_keys.jump_angle};
+                          y: self.input_keys.jump_angle / 2.0};
         let time_diff = game_time - self.current_time;
         self.current_time = game_time;
         self.player.position =  self.player.position + shift.mult(time_diff/2.0);
@@ -56,8 +59,8 @@ impl PolarGame{
             if collision(&*f, &self.player){
                 self.player.parts[0].color = [1.0, 0.0, 0.0, 1.0];
             }
-
         }
+
         let current_flares = self.flares.clone();
         let (_, flares_trimmed) : (Vec<Flare>, Vec<Flare>)
             = current_flares.into_iter().partition(|f| f.terminate_flag(Point{x: -1.0, y: 2.0}));
@@ -69,11 +72,14 @@ impl PolarGame{
             let unif = Range::new(0.0, 1.0);
             let sa = unif.ind_sample(&mut rng);
             let r = unif.ind_sample(&mut rng) / 20.0 + 0.02;
-            let a = unif.ind_sample(&mut rng) / 50.0 + 0.01;
+            let a = unif.ind_sample(&mut rng) / 50.0 + 0.005;
             let v = unif.ind_sample(&mut rng) / 2.0 + 0.1;
             let new_flare = Flare::new(Point{x: r, y: a}, sa, v);
             self.flares.push(new_flare);
             self.previous_flare_time = self.current_time;
+            let emit_average = (5.0 + game_time - self.start_time ) / 5.0 + 4.0;
+            let exp = Exp::new(emit_average);
+            self.time_til_flare = exp.ind_sample(&mut rng);
         }
 
 
