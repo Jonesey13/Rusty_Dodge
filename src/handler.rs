@@ -1,5 +1,6 @@
 use shader;
 use polar_game;
+use polar_game::object::Part;
 use glium;
 use glium::backend::glutin_backend::GlutinFacade;
 use glium::glutin::Event::KeyboardInput;
@@ -7,7 +8,6 @@ use glium::glutin::VirtualKeyCode;
 use glium::{DisplayBuild, Surface};
 use glium::draw_parameters::LinearBlendingFactor;
 use glium::draw_parameters::BlendingFunction;
-use polar_game::object::Part;
 use glium::glutin::ElementState::Pressed;
 use time;
 
@@ -51,7 +51,7 @@ impl<'a> Handler<'a>{
     }
 
     pub fn init(&mut self){
-        self.game.init(time::precise_time_s() as f32);
+        self.game.init(time::precise_time_s());
     }
 
     pub fn update_rendering(&mut self){
@@ -112,7 +112,7 @@ impl<'a> Handler<'a>{
     }
 
     pub fn update_physics(&mut self){
-        self.game.update_physics(time::precise_time_s() as f32);
+        self.game.update_physics(time::precise_time_s());
     }
 }
 
@@ -142,8 +142,8 @@ impl GliumKeys{
 
 #[derive(Copy, Clone)]
 pub struct Vertices {
-    polar: [f32; 4],
-    color: [f32; 4]
+    polar: [f64; 4],
+    color: [f64; 4]
 }
 
 pub struct Res{

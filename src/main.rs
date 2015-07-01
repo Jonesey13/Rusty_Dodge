@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate glium;
 extern crate time;
+extern crate rand;
+
 
 mod shader;
 mod polar_game;

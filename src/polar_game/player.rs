@@ -11,7 +11,11 @@ impl Object for Player{
         self.position = new_pos;
     }
 
-    fn get_parts(&self) -> Vec<Part>{
+    fn get_position(&self) -> Point{
+        self.position
+    }
+
+    fn get_render_parts(&self) -> Vec<Part>{
         let mut part_vec: Vec<Part> = Vec::new();
         for p in self.parts.iter(){
             let p_shift = Part{
@@ -27,9 +31,9 @@ impl Object for Player{
 
 impl Player{
     pub fn new() -> Player{
-        let prts = vec![Part{radial: Point{x: 0.0, y:0.1},
-                          angle: Point{x:0.0, y:0.1},
-                              color: [1.0,1.0,1.0,1.0]}];
+        let prts = vec![Part{radial: Point{x: 0.0, y: 0.1},
+                          angle: Point{x: 0.0, y: 0.1},
+                              color: [1.0, 1.0, 1.0, 1.0]}];
         Player{position: Point{x: 0.5, y:0.0}, parts: prts}
     }
 }
