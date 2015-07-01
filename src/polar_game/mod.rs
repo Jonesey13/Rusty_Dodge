@@ -2,10 +2,12 @@ pub mod player;
 pub mod object;
 pub mod enemy;
 pub mod flare;
+pub mod frame;
 use polar_game::player::Player;
 use polar_game::object::{Part,Object,Point,collision};
 use polar_game::flare::Flare;
 use polar_game::enemy::Enemy;
+use polar_game::frame::PolarFrame;
 use rand;
 use rand::distributions::exponential::Exp;
 use rand::distributions::IndependentSample;
@@ -19,6 +21,7 @@ pub struct PolarGame{
     previous_flare_time: f64,
     start_time: f64,
     pub input_keys: InputKeys,
+    frame: PolarFrame,
 }
 
 impl PolarGame{
@@ -35,6 +38,7 @@ impl PolarGame{
             time_til_flare: 1.0,
             previous_flare_time: 0.0,
             start_time: 0.0,
+            frame: PolarFrame::new(20, 20, Point{x: 0.01, y: 0.02}, 2.0),
         }
     }
 
@@ -90,6 +94,9 @@ impl PolarGame{
         for f in self.flares.iter(){
             let flare_part = f.get_render_parts()[0];
             rend_vec.push(flare_part);
+        }
+        for f in self.frame.get_render_parts().iter(){
+            rend_vec.push(f.clone());
         }
         rend_vec
     }

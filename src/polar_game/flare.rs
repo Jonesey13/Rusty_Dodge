@@ -34,7 +34,7 @@ impl Flare{
     pub fn new(size: Point, start_angle: f64, velocity: f64) -> Flare{
         let part = Part{radial: Point{x: -size.x, y: 0.0},
                         angle: Point{x: start_angle, y: start_angle + size.y},
-                        color: [1.0, 1.0, 0.0, 1.0]};
+                        color: [0.8, 0.5, 0.0, 1.0]};
         Flare{position: Point{x: 0.0,
                               y: 0.0},
               part: part,
