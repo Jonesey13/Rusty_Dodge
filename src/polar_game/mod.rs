@@ -14,9 +14,9 @@ use rand::distributions::IndependentSample;
 use rand::distributions::range::Range;
 
 pub struct PolarGame{
-    player: Player,
+    pub player: Player,
     flares: Vec<Flare>,
-    current_time: f64,
+    pub current_time: f64,
     time_til_flare: f64,
     previous_flare_time: f64,
     start_time: f64,
@@ -56,8 +56,8 @@ impl PolarGame{
                           y: self.input_keys.jump_angle / 2.0};
         let time_diff = game_time - self.current_time;
         self.current_time = game_time;
-        self.player.position =  self.player.position + shift.mult(time_diff/2.0);
-
+        self.player.position =  self.player.position + shift.mult(time_diff);
+        self.player.position.x = self.player.position.x.min(1.9);
         for mut f in self.flares.iter_mut(){
             f.update_position(time_diff, &self.player);
             if collision(&*f, &self.player){
@@ -90,13 +90,16 @@ impl PolarGame{
     }
 
     pub fn get_rendering_list(&self) -> Vec<Part>{
-        let mut rend_vec = self.player.get_render_parts();
+        let mut rend_vec: Vec<Part> = Vec::new();
+        for f in self.frame.get_render_parts().iter(){
+            rend_vec.push(f.clone());
+        }
+        for f in self.player.get_render_parts().iter(){
+            rend_vec.push(f.clone());
+        }
         for f in self.flares.iter(){
             let flare_part = f.get_render_parts()[0];
             rend_vec.push(flare_part);
-        }
-        for f in self.frame.get_render_parts().iter(){
-            rend_vec.push(f.clone());
         }
         rend_vec
     }
