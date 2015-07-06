@@ -59,12 +59,12 @@ impl PolarGame{
                           y: self.input_keys.jump_angle / 2.0};
         let time_diff = game_time - self.current_time;
         self.current_time = game_time;
-        self.player.position =  self.player.position + shift.mult(time_diff);
-        self.player.position.x = self.player.position.x.min(self.setup.radial_max - self.setup.player_width.x).max(0.0);
+
+        self.player.update_position(shift, time_diff, self.setup);
         for mut f in self.flares.iter_mut(){
             f.update_position(time_diff, &self.player);
             if collision(&*f, &self.player){
-                self.player.parts[0].color = [1.0, 0.0, 0.0, 1.0];
+                self.player.collide();;
             }
         }
 

@@ -29,6 +29,7 @@ pub struct Handler<'a>{
     pub txt_system: glium_text::TextSystem,
     pub font: glium_text::FontTexture,
     pub survival_start_time: f64,
+    pub time_elapsed: f64,
 }
 
 impl<'a> Handler<'a>{
@@ -48,7 +49,7 @@ impl<'a> Handler<'a>{
         draw_param.blending_function = Some( BlendingFunction::Addition{source: LinearBlendingFactor::SourceAlpha,
                                                                         destination:  LinearBlendingFactor::OneMinusSourceAlpha});
         let game_setup = GameSetup{radial_max: 2.0,
-                                   player_start: Point{x: 0.0, y: 0.75},
+                                   player_start: Point{x: 0.5, y: 0.75},
                                    player_width: Point{x: 0.02, y: 0.01}};
 
         let txt_system = glium_text::TextSystem::new(&display);
@@ -68,6 +69,7 @@ impl<'a> Handler<'a>{
             txt_system: txt_system,
             font: font,
             survival_start_time: 0.0,
+            time_elapsed: 0.0,
         }
     }
 
@@ -98,9 +100,12 @@ impl<'a> Handler<'a>{
                     &self.draw_param)
             .unwrap();
 
-        let time_elapsed = time::precise_time_s() - self.survival_start_time;
+        if !self.game.player.destroyed{
+            self.time_elapsed = time::precise_time_s() - self.survival_start_time;
+        }
+
         let mut text_string = "Survival Time: ".to_string();
-        let mut num_string = time_elapsed.to_string();
+        let mut num_string = self.time_elapsed.to_string();
         if num_string.len() > 4{
             num_string.truncate(4);
         }
@@ -122,11 +127,12 @@ impl<'a> Handler<'a>{
         for item in self.display.poll_events() {
             match item
             {
-                KeyboardInput(_, _, Some(VirtualKeyCode::Escape)) => keys.exit = true,
-                KeyboardInput(state, _, Some(VirtualKeyCode::Left)) => keys.left = state==Pressed,
-                KeyboardInput(state, _, Some(VirtualKeyCode::Right)) => keys.right = state==Pressed,
-                KeyboardInput(state, _, Some(VirtualKeyCode::Up)) => keys.up = state==Pressed,
-                KeyboardInput(state, _, Some(VirtualKeyCode::Down)) => keys.down = state==Pressed,
+                KeyboardInput(state, _, Some(VirtualKeyCode::Escape)) => keys.exit = state == Pressed,
+                KeyboardInput(state, _, Some(VirtualKeyCode::Return)) => keys.reset = state == Pressed,
+                KeyboardInput(state, _, Some(VirtualKeyCode::Left)) => keys.left = state == Pressed,
+                KeyboardInput(state, _, Some(VirtualKeyCode::Right)) => keys.right = state == Pressed,
+                KeyboardInput(state, _, Some(VirtualKeyCode::Up)) => keys.up = state == Pressed,
+                KeyboardInput(state, _, Some(VirtualKeyCode::Down)) => keys.down = state == Pressed,
                 _ =>print!(""),
             }
         }
@@ -158,7 +164,10 @@ impl<'a> Handler<'a>{
         self.game.update_physics(game_time);
         if self.game.player.position.x > 0.75 && self.game.player.position.x < self.game_setup.radial_max - self.game_setup.player_width.x {
             self.radial_shift = (self.radial_shift + time_diff * self.game.input_keys.jump_radial).max(0.0);
-            }
+        }
+        if self.keys.reset{
+            self.reset_game();
+        }
     }
 
     pub fn reset_game(&mut self){
@@ -166,6 +175,7 @@ impl<'a> Handler<'a>{
         self.keys = GliumKeys::new();
         self.radial_shift = 0.0;
         self.survival_start_time = 0.0;
+        self.init();
     }
 }
 
@@ -178,7 +188,8 @@ pub struct GliumKeys{
     pub right: bool,
     pub up: bool,
     pub down: bool,
-    pub exit: bool
+    pub exit: bool,
+    pub reset: bool,
 }
 
 impl GliumKeys{
@@ -188,7 +199,8 @@ impl GliumKeys{
             right: false,
             up: false,
             down: false,
-            exit: false
+            exit: false,
+            reset: false,
         }
     }
 }
