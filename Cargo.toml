@@ -5,5 +5,8 @@ authors = ["Jonesey13 <adj27@cam.ac.uk>"]
 
 [dependencies]
 glium = "*"
+glium_text = "*"
+freetype-sys = "*"
+libc = "*"
 time = "*"
 rand = "*"

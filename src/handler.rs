@@ -1,6 +1,3 @@
-use shader;
-use polar_game;
-use polar_game::object::Part;
 use glium;
 use glium::backend::glutin_backend::GlutinFacade;
 use glium::glutin::Event::KeyboardInput;
@@ -9,8 +6,15 @@ use glium::{DisplayBuild, Surface};
 use glium::draw_parameters::LinearBlendingFactor;
 use glium::draw_parameters::BlendingFunction;
 use glium::glutin::ElementState::Pressed;
-use time;
+use glium_text;
+use std::fs::File;
+use std::path::Path;
 
+use time;
+use shader;
+use polar_game;
+use polar_game::object::{Part, Point};
+use polar_game::GameSetup;
 
 pub struct Handler<'a>{
     pub display: GlutinFacade,
@@ -21,6 +25,10 @@ pub struct Handler<'a>{
     pub draw_param: glium::draw_parameters::DrawParameters<'a>,
     pub res: Res,
     pub radial_shift: f64,
+    pub game_setup: GameSetup,
+    pub txt_system: glium_text::TextSystem,
+    pub font: glium_text::FontTexture,
+    pub survival_start_time: f64,
 }
 
 impl<'a> Handler<'a>{
@@ -39,21 +47,33 @@ impl<'a> Handler<'a>{
         let mut draw_param =  glium::draw_parameters::DrawParameters::default();
         draw_param.blending_function = Some( BlendingFunction::Addition{source: LinearBlendingFactor::SourceAlpha,
                                                                         destination:  LinearBlendingFactor::OneMinusSourceAlpha});
+        let game_setup = GameSetup{radial_max: 2.0,
+                                   player_start: Point{x: 0.0, y: 0.75},
+                                   player_width: Point{x: 0.02, y: 0.01}};
+
+        let txt_system = glium_text::TextSystem::new(&display);
+
+        let font = glium_text::FontTexture::new(&display, File::open(&Path::new("OpenSans.ttf")).unwrap(), 120).unwrap();
 
         Handler{
             vertex_buffer: glium::VertexBuffer::empty(&display, 0),
             display: display,
-            game: polar_game::PolarGame::new(),
+            game: polar_game::PolarGame::new(game_setup),
             keys: GliumKeys::new(),
             program: program,
             draw_param: draw_param,
             res: Res{width: screen_width, height: screen_height},
             radial_shift: 0.0,
+            game_setup: game_setup,
+            txt_system: txt_system,
+            font: font,
+            survival_start_time: 0.0,
         }
     }
 
     pub fn init(&mut self){
         self.game.init(time::precise_time_s());
+        self.survival_start_time = time::precise_time_s();
     }
 
     pub fn update_rendering(&mut self){
@@ -77,7 +97,24 @@ impl<'a> Handler<'a>{
                     &uniforms,
                     &self.draw_param)
             .unwrap();
-        target.finish();
+
+        let time_elapsed = time::precise_time_s() - self.survival_start_time;
+        let mut text_string = "Survival Time: ".to_string();
+        let mut num_string = time_elapsed.to_string();
+        if num_string.len() > 4{
+            num_string.truncate(4);
+        }
+        text_string.push_str(&num_string);
+        let text = glium_text::TextDisplay::new(&self.txt_system, &self.font, &text_string);
+
+        let matrix = [[0.05, 0.0, 0.0, 0.0],
+                      [0.0, 0.05, 0.0, 0.0],
+                      [0.0, 0.0, 1.0, 0.0],
+                      [0.3, 0.9, 0.0, 1.0]];
+
+        glium_text::draw(&text, &self.txt_system, &mut target, matrix, (1.0, 1.0, 0.0, 1.0));
+
+        target.finish().unwrap();
     }
 
     pub fn update_input(&mut self){
@@ -94,10 +131,10 @@ impl<'a> Handler<'a>{
             }
         }
         if keys.left{
-            self.game.input_keys.jump_angle = 0.5;
+            self.game.input_keys.jump_angle = -0.5;
         }
         else if keys.right{
-            self.game.input_keys.jump_angle = -0.5;
+            self.game.input_keys.jump_angle = 0.5;
         }
         else{
             self.game.input_keys.jump_angle = 0.0;
@@ -119,9 +156,16 @@ impl<'a> Handler<'a>{
         let game_time = time::precise_time_s();
         let time_diff = game_time - current_time;
         self.game.update_physics(game_time);
-        if self.game.player.position.x > 0.75 && self.game.player.position.x < 1.9 {
+        if self.game.player.position.x > 0.75 && self.game.player.position.x < self.game_setup.radial_max - self.game_setup.player_width.x {
             self.radial_shift = (self.radial_shift + time_diff * self.game.input_keys.jump_radial).max(0.0);
             }
+    }
+
+    pub fn reset_game(&mut self){
+        self.game = polar_game::PolarGame::new(self.game_setup);
+        self.keys = GliumKeys::new();
+        self.radial_shift = 0.0;
+        self.survival_start_time = 0.0;
     }
 }
 

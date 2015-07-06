@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate glium;
+extern crate glium_text;
 extern crate time;
 extern crate rand;
 
@@ -25,7 +26,7 @@ fn main() {
         }
         handler.update_physics();
         handler.update_rendering();
-        if handler.display.is_closed(){
+        if handler.keys.exit{
             break;
         }
     }

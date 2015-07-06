@@ -22,13 +22,14 @@ pub struct PolarGame{
     start_time: f64,
     pub input_keys: InputKeys,
     frame: PolarFrame,
+    pub setup: GameSetup,
 }
 
 impl PolarGame{
 
-    pub fn new() -> PolarGame{
+    pub fn new(setup: GameSetup) -> PolarGame{
         PolarGame{
-            player: Player::new(),
+            player: Player::new(setup.player_start, setup.player_width),
             flares: Vec::new(),
             current_time: 0.0,
             input_keys: InputKeys{
@@ -38,11 +39,13 @@ impl PolarGame{
             time_til_flare: 1.0,
             previous_flare_time: 0.0,
             start_time: 0.0,
-            frame: PolarFrame::new(20, 20, Point{x: 0.01, y: 0.02}, 2.0),
+            frame: PolarFrame::new(20, 20, Point{x: 0.01, y: 0.02}, setup.radial_max),
+            setup: setup,
         }
     }
 
     pub fn init(&mut self, game_time: f64){
+
         self.current_time = game_time;
         self.start_time = game_time;
         self.previous_flare_time = self.current_time;
@@ -57,7 +60,7 @@ impl PolarGame{
         let time_diff = game_time - self.current_time;
         self.current_time = game_time;
         self.player.position =  self.player.position + shift.mult(time_diff);
-        self.player.position.x = self.player.position.x.min(1.9);
+        self.player.position.x = self.player.position.x.min(self.setup.radial_max - self.setup.player_width.x).max(0.0);
         for mut f in self.flares.iter_mut(){
             f.update_position(time_diff, &self.player);
             if collision(&*f, &self.player){
@@ -109,4 +112,11 @@ impl PolarGame{
 pub struct InputKeys{
     pub jump_angle: f64,
     pub jump_radial: f64
+}
+
+#[derive(Copy, Clone)]
+pub struct GameSetup{
+    pub radial_max: f64,
+    pub player_start: Point,
+    pub player_width: Point,
 }

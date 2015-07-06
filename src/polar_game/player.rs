@@ -30,9 +30,9 @@ impl Object for Player{
 }
 
 impl Player{
-    pub fn new() -> Player{
-        let prts = vec![Part{radial: Point{x: 0.0, y: 0.05},
-                          angle: Point{x: 0.0, y: 0.02},
+    pub fn new(start: Point, width: Point) -> Player{
+        let prts = vec![Part{radial: Point{x: start.x, y: start.x + width.x},
+                          angle: Point{x: start.y, y: start.y + width.y},
                               color: [1.0, 1.0, 1.0, 1.0]}];
         Player{position: Point{x: 0.5, y:0.0}, parts: prts}
     }

@@ -15,7 +15,7 @@ impl PolarFrame{
         let mut parts: Vec<Part> = Vec::new();
         let radial_step = radial_total / radial_size as f64;
         let angle_step = 1.0 / angle_size as f64;
-        let color = [0.2, 0.2, 1.0, 1.0];
+        let color = [0.1, 0.1, 1.0, 1.0];
         for r in 0..radial_size{
             for a in 0..angle_size{
                 let radial = Point{x: radial_step * r as f64,
