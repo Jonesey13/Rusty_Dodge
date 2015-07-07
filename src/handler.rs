@@ -23,7 +23,6 @@ pub struct Handler<'a>{
     pub keys: GliumKeys,
     pub program: glium::Program,
     pub draw_param: glium::draw_parameters::DrawParameters<'a>,
-    pub res: Res,
     pub radial_shift: f64,
     pub game_setup: GameSetup,
     pub txt_system: glium_text::TextSystem,
@@ -63,7 +62,6 @@ impl<'a> Handler<'a>{
             keys: GliumKeys::new(),
             program: program,
             draw_param: draw_param,
-            res: Res{width: screen_width, height: screen_height},
             radial_shift: 0.0,
             game_setup: game_setup,
             txt_system: txt_system,
@@ -83,7 +81,6 @@ impl<'a> Handler<'a>{
         let uniforms = uniform! {
             radial_shift: self.radial_shift as f32,
             center: [0.0, 0.0],
-            window: [self.res.width as f32, self.res.height as f32]
         };
 
         let vertices: Vec<Part>  = self.game.get_rendering_list();

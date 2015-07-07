@@ -2,9 +2,9 @@
 
 in vec4 polar_geometry;
 in vec4 color_geometry;
+in vec2 emit_vertex;
 
 uniform vec2 center;
-uniform vec2 window;
 
 out vec4 color;
 
@@ -12,8 +12,7 @@ bool angleCompare(in float a, in vec2 range);
 
 void main()
 {
-  vec2 fragCoord = 2 * vec2(gl_FragCoord.x / window.x, gl_FragCoord.y / window.y )
-                     - vec2(1, 1);
+  vec2 fragCoord = emit_vertex;
   fragCoord -= center;
   float fragRadius = dot(fragCoord, fragCoord);
   bool radialOverlap = fragRadius >= dot(polar_geometry.x, polar_geometry.x)

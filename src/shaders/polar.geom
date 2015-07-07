@@ -7,6 +7,7 @@ in vec4 polar_vertex[];
 in vec4 color_vertex[];
 out vec4 color_geometry;
 out vec4 polar_geometry;
+out vec2 emit_vertex;
 
 
 void main() {
@@ -21,23 +22,31 @@ void main() {
       float angle_diff = (angle_first - angle_second) / 2.0f;
       float radial_large = polar_vertex[0].y / cos(angle_diff);
       gl_Position = vec4(radial_large * vec2(cos(angle_first), sin(angle_first)), 0.0f, 1.0f);
+      emit_vertex = gl_Position.xy;
       EmitVertex();
       gl_Position = vec4(polar_vertex[0].x * vec2(cos(angle_first), sin(angle_first)), 0.0f, 1.0f);
+      emit_vertex = gl_Position.xy;
       EmitVertex();
       gl_Position = vec4(radial_large * vec2(cos(angle_second), sin(angle_second)), 0.0f, 1.0f);
+      emit_vertex = gl_Position.xy;
       EmitVertex();
       gl_Position = vec4(polar_vertex[0].x * vec2(cos(angle_second), sin(angle_second)), 0.0f, 1.0f);
+      emit_vertex = gl_Position.xy;
       EmitVertex();
     }
   else
     {
       gl_Position = vec4(polar_vertex[0].y * vec2(-1.0f, -1.0f), 0.0f, 1.0f);
+      emit_vertex = gl_Position.xy;
       EmitVertex();
       gl_Position = vec4(polar_vertex[0].y * vec2(-1.0f, 1.0f), 0.0f, 1.0f);
+      emit_vertex = gl_Position.xy;
       EmitVertex();
       gl_Position = vec4(polar_vertex[0].y * vec2(1.0f,- 1.0f), 0.0f, 1.0f);
+      emit_vertex = gl_Position.xy;
       EmitVertex();
       gl_Position = vec4(polar_vertex[0].y * vec2(1.0f, 1.0f), 0.0f, 1.0f);
+      emit_vertex = gl_Position.xy;
       EmitVertex();
     }
 
