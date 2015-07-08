@@ -1,7 +1,7 @@
 # Rusty_Dodge
 Porting the Circular Dodge Game to Rust with Glium. This project is primarily to help me learn how to code in Rust and OpenGL.
 
-![](https://github.com/Jonesey13/Rusty_Dodge/rusty_dodge.png)
+![](https://github.com/Jonesey13/Rusty_Dodge/blob/master/rusty_dodge.png)
 
 IMPORTANT: Make sure the shaders folder is in the same directory that you build/run the project with (namely where you call Cargo build (or run) )
 
