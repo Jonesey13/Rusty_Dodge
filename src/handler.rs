@@ -1,6 +1,6 @@
 use glium;
 use glium::backend::glutin_backend::GlutinFacade;
-use glium::glutin::Event::KeyboardInput;
+use glium::glutin::Event::{Closed,KeyboardInput};
 use glium::glutin::VirtualKeyCode;
 use glium::{DisplayBuild, Surface};
 use glium::draw_parameters::LinearBlendingFactor;
@@ -125,6 +125,7 @@ impl<'a> Handler<'a>{
         for item in self.display.poll_events() {
             match item
             {
+                Closed => keys.exit = true,
                 KeyboardInput(state, _, Some(VirtualKeyCode::Escape)) => keys.exit = state == Pressed,
                 KeyboardInput(state, _, Some(VirtualKeyCode::Return)) => keys.reset = state == Pressed,
                 KeyboardInput(state, _, Some(VirtualKeyCode::Left)) => keys.left = state == Pressed,
@@ -207,9 +208,4 @@ impl GliumKeys{
 pub struct Vertices {
     polar: [f64; 4],
     color: [f64; 4]
-}
-
-pub struct Res{
-    width: u32,
-    height: u32
 }

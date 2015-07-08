@@ -91,7 +91,7 @@ impl Player{
     pub fn collide(&mut self){
         let mut destructs: Vec<Part> = Vec::new();
         let center = self.get_center();
-        for i in 0..100{
+        for _ in 0..100{
             destructs.push(Part{radial: Point{x: center.x - 0.002, y: center.x + 0.002},
                                angle: Point{x: center.y - 0.002, y: center.y + 0.002},
                                color: [1.0, 1.0, 1.0, 1.0]});
@@ -101,7 +101,7 @@ impl Player{
         let mut directs: Vec<Point> = Vec::new();
         let mut rng = rand::thread_rng();
         let unif = Range::new(0.0, 1.0);
-        for i in 0..100{
+        for _ in 0..100{
             let pseudo_angle = unif.ind_sample(&mut rng);
             let radial = (2.0 * PI * pseudo_angle).cos();
             let angle = (2.0 * PI * pseudo_angle).sin();
