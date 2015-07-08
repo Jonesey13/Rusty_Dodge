@@ -208,8 +208,3 @@ pub struct Vertices {
     polar: [f64; 4],
     color: [f64; 4]
 }
-
-pub struct Res{
-    width: u32,
-    height: u32
-}
