@@ -31,6 +31,7 @@ pub struct Handler<'a>{
     pub time_elapsed: f64,
 }
 
+
 impl<'a> Handler<'a>{
 
     pub fn new() -> Handler<'a>{
