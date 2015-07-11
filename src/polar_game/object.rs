@@ -1,3 +1,7 @@
+/*
+Handles Basic Polar Objects and Collision Detection
+*/
+
 use std::ops::*;
 
 pub trait Object{

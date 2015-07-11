@@ -1,3 +1,7 @@
+/*
+Standard Polar Geometry Shader
+ */
+
 #version 330 core
 
 layout(points) in;
@@ -7,7 +11,7 @@ in vec4 polar_vertex[];
 in vec4 color_vertex[];
 out vec4 color_geometry;
 out vec4 polar_geometry;
-out vec2 emit_vertex;
+out vec2 emit_vertex; // For Giving the Screen Position to the Fragments
 
 
 void main() {

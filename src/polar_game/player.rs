@@ -1,3 +1,7 @@
+/*
+Controls the Player Behaviour
+*/
+
 use polar_game::object::{Part,Object,};
 use polar_game::object::{Point};
 use polar_game::GameSetup;
@@ -8,7 +12,7 @@ use std::f64::consts::PI;
 
 pub struct Player{
     pub position: Point,
-    pub parts: Vec<Part>,
+    parts: Vec<Part>,
     destruct_parts: Vec<Part>,
     destruct_dirs: Vec<Point>,
     pub destroyed: bool,
@@ -75,7 +79,6 @@ impl Player{
                 self.destruct_parts[i].radial = self.destruct_parts[i].radial + radial_shift.mult(time_passed);
                 self.destruct_parts[i].angle = self.destruct_parts[i].angle + angle_shift.mult(time_passed);;
             }
-
         }
     }
 

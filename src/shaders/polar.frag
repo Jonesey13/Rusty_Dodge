@@ -1,3 +1,7 @@
+/*
+Standard Polar Fragment Shader
+ */
+
 #version 330 core
 
 in vec4 polar_geometry;

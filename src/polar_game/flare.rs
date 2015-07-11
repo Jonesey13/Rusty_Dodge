@@ -1,3 +1,8 @@
+/*
+Handles the Flare Enemy Type
+*/
+
+
 use polar_game::object::{Part,Object,Point};
 use polar_game::enemy::Enemy;
 use polar_game::player::Player;

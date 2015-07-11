@@ -1,3 +1,8 @@
+/*
+Reads a vector of file addresses and stores the corresponding shaders
+into a vector of strings
+*/
+
 use std::io::prelude::*;
 use std::fs::File;
 pub struct Shader{

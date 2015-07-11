@@ -1,3 +1,7 @@
+/*
+Standard Polar Vertex Shader
+ */
+
 #version 330 core
 in vec4 polar;
 in vec4 color;

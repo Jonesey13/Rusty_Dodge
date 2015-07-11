@@ -1,3 +1,8 @@
+/*
+Defines Basic Enemy Behaviour
+*/
+
+
 use polar_game::player::Player;
 
 

@@ -1,3 +1,7 @@
+/*
+Central file for the polar_game module
+*/
+
 pub mod player;
 pub mod object;
 pub mod enemy;
@@ -8,21 +12,20 @@ use polar_game::object::{Part,Object,Point,collision};
 use polar_game::flare::Flare;
 use polar_game::enemy::Enemy;
 use polar_game::frame::PolarFrame;
+use time;
 use rand;
 use rand::distributions::exponential::Exp;
 use rand::distributions::IndependentSample;
 use rand::distributions::range::Range;
 
 pub struct PolarGame{
-    pub player: Player,
+    player: Player,
     flares: Vec<Flare>,
-    pub current_time: f64,
-    time_til_flare: f64,
-    previous_flare_time: f64,
-    start_time: f64,
     pub input_keys: InputKeys,
     frame: PolarFrame,
     pub setup: GameSetup,
+    time: Times,
+    pub state: GameState,
 }
 
 impl PolarGame{
@@ -31,34 +34,27 @@ impl PolarGame{
         PolarGame{
             player: Player::new(setup.player_start, setup.player_width),
             flares: Vec::new(),
-            current_time: 0.0,
             input_keys: InputKeys{
                 jump_angle: 0.0,
                 jump_radial: 0.0,
             },
-            time_til_flare: 1.0,
-            previous_flare_time: 0.0,
-            start_time: 0.0,
+            time: Times::new(0.0),
             frame: PolarFrame::new(20, 20, Point{x: 0.01, y: 0.02}, setup.radial_max),
             setup: setup,
+            state: GameState::new(),
         }
     }
 
-    pub fn init(&mut self, game_time: f64){
-
-        self.current_time = game_time;
-        self.start_time = game_time;
-        self.previous_flare_time = self.current_time;
-        let mut rng = rand::thread_rng();
-        let exp = Exp::new(1.0);
-        self.time_til_flare = exp.ind_sample(&mut rng);
+    pub fn init(&mut self){
+        self.time = Times::new(time::precise_time_s());
     }
 
-    pub fn update_physics(&mut self, game_time: f64){
+    pub fn update_physics(&mut self){
         let shift = Point{x: self.input_keys.jump_radial,
                           y: self.input_keys.jump_angle / 2.0};
-        let time_diff = game_time - self.current_time;
-        self.current_time = game_time;
+        let current_time = time::precise_time_s();
+        let time_diff =  current_time - self.time.elapsed;
+        self.time.elapsed = current_time;
 
         self.player.update_position(shift, time_diff, self.setup);
         for mut f in self.flares.iter_mut(){
@@ -74,7 +70,7 @@ impl PolarGame{
         self.flares = flares_trimmed;
 
 
-        if self.current_time - self.previous_flare_time > self.time_til_flare{
+        if self.time.elapsed - self.time.previous_flare > self.time.til_flare{
             let mut rng = rand::thread_rng();
             let unif = Range::new(0.0, 1.0);
             let sa = unif.ind_sample(&mut rng);
@@ -83,13 +79,19 @@ impl PolarGame{
             let v = unif.ind_sample(&mut rng) / 2.0 + 0.1;
             let new_flare = Flare::new(Point{x: r, y: a}, sa, v);
             self.flares.push(new_flare);
-            self.previous_flare_time = self.current_time;
-            let emit_average = (5.0 + game_time - self.start_time ) / 5.0 + 4.0;
+            self.time.previous_flare = self.time.elapsed;
+            let emit_average = (5.0 + self.time.elapsed - self.time.start ) / 5.0 + 4.0;
             let exp = Exp::new(emit_average);
-            self.time_til_flare = exp.ind_sample(&mut rng);
+            self.time.til_flare = exp.ind_sample(&mut rng);
         }
 
-
+        let mut new_survival_time = self.state.survival_time;;
+        if !self.player.destroyed{
+            new_survival_time = self.time.elapsed - self.time.survival_start;
+        }
+        self.state = GameState{player_death: self.player.destroyed,
+                               survival_time: new_survival_time,
+                               };
     }
 
     pub fn get_rendering_list(&self) -> Vec<Part>{
@@ -107,6 +109,9 @@ impl PolarGame{
         rend_vec
     }
 
+    pub fn get_player_position(&self) -> Point{
+        self.player.get_position()
+    }
 }
 
 pub struct InputKeys{
@@ -119,4 +124,40 @@ pub struct GameSetup{
     pub radial_max: f64,
     pub player_start: Point,
     pub player_width: Point,
+}
+
+#[derive(Copy, Clone)]
+pub struct GameState{
+    pub player_death: bool,
+    pub survival_time: f64,
+}
+
+impl GameState{
+    pub fn new() -> GameState{
+        GameState{ player_death: false,
+                   survival_time: 0.0,
+        }
+    }
+}
+
+#[derive(Copy, Clone)]
+pub struct Times{
+    til_flare: f64,
+    previous_flare: f64,
+    start: f64,
+    survival_start: f64,
+    elapsed: f64,
+}
+
+impl Times{
+    pub fn new(start_time: f64) -> Times{
+        let mut rng = rand::thread_rng();
+        let exp = Exp::new(1.0);
+        Times{ til_flare: exp.ind_sample(&mut rng),
+               previous_flare: start_time,
+               start: start_time,
+               survival_start: start_time,
+               elapsed: start_time,
+        }
+    }
 }

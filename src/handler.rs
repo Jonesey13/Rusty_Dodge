@@ -1,3 +1,8 @@
+/*
+Handles Rendering and Input for the game.
+The games itself makes no contact with glium.
+*/
+
 use glium;
 use glium::backend::glutin_backend::GlutinFacade;
 use glium::glutin::Event::{Closed,KeyboardInput};
@@ -10,25 +15,22 @@ use glium_text;
 use std::fs::File;
 use std::path::Path;
 
-use time;
 use shader;
 use polar_game;
 use polar_game::object::{Part, Point};
 use polar_game::GameSetup;
 
 pub struct Handler<'a>{
-    pub display: GlutinFacade,
+    display: GlutinFacade,
     game: polar_game::PolarGame,
-    pub vertex_buffer: glium::VertexBuffer<Vertices>,
+    vertex_buffer: glium::VertexBuffer<Vertices>,
     pub keys: GliumKeys,
-    pub program: glium::Program,
-    pub draw_param: glium::draw_parameters::DrawParameters<'a>,
-    pub radial_shift: f64,
-    pub game_setup: GameSetup,
-    pub txt_system: glium_text::TextSystem,
-    pub font: glium_text::FontTexture,
-    pub survival_start_time: f64,
-    pub time_elapsed: f64,
+    program: glium::Program,
+    draw_param: glium::draw_parameters::DrawParameters<'a>,
+    radial_shift: f64,
+    game_setup: GameSetup,
+    txt_system: glium_text::TextSystem,
+    font: glium_text::FontTexture,
 }
 
 
@@ -38,6 +40,7 @@ impl<'a> Handler<'a>{
         let screen_width = 1024;
         let screen_height = 1024;
         let display = glium::glutin::WindowBuilder::new().with_dimensions(screen_width,screen_height).build_glium().unwrap();
+        //.with_fullscreen(glium::glutin::get_primary_monitor())
 
         implement_vertex!(Vertices, polar, color);
 
@@ -67,14 +70,11 @@ impl<'a> Handler<'a>{
             game_setup: game_setup,
             txt_system: txt_system,
             font: font,
-            survival_start_time: 0.0,
-            time_elapsed: 0.0,
         }
     }
 
     pub fn init(&mut self){
-        self.game.init(time::precise_time_s());
-        self.survival_start_time = time::precise_time_s();
+        self.game.init();
     }
 
     pub fn update_rendering(&mut self){
@@ -98,12 +98,8 @@ impl<'a> Handler<'a>{
                     &self.draw_param)
             .unwrap();
 
-        if !self.game.player.destroyed{
-            self.time_elapsed = time::precise_time_s() - self.survival_start_time;
-        }
-
         let mut text_string = "Survival Time: ".to_string();
-        let mut num_string = self.time_elapsed.to_string();
+        let mut num_string = self.game.state.survival_time.to_string();
         if num_string.len() > 4{
             num_string.truncate(4);
         }
@@ -132,7 +128,7 @@ impl<'a> Handler<'a>{
                 KeyboardInput(state, _, Some(VirtualKeyCode::Right)) => keys.right = state == Pressed,
                 KeyboardInput(state, _, Some(VirtualKeyCode::Up)) => keys.up = state == Pressed,
                 KeyboardInput(state, _, Some(VirtualKeyCode::Down)) => keys.down = state == Pressed,
-                _ =>print!(""),
+                _ => (),
             }
         }
         if keys.left{
@@ -157,12 +153,13 @@ impl<'a> Handler<'a>{
     }
 
     pub fn update_physics(&mut self){
-        let current_time = self.game.current_time;
-        let game_time = time::precise_time_s();
-        let time_diff = game_time - current_time;
-        self.game.update_physics(game_time);
-        if self.game.player.position.x > 0.75 && self.game.player.position.x < self.game_setup.radial_max - self.game_setup.player_width.x {
-            self.radial_shift = (self.radial_shift + time_diff * self.game.input_keys.jump_radial).max(0.0);
+        self.game.update_physics();
+        let player_position = self.game.get_player_position();
+        if player_position.x > 0.75 {
+            self.radial_shift = player_position.x - 0.75;
+        }
+        else{
+            self.radial_shift = 0.0;
         }
         if self.keys.reset{
             self.reset_game();
@@ -173,7 +170,6 @@ impl<'a> Handler<'a>{
         self.game = polar_game::PolarGame::new(self.game_setup);
         self.keys = GliumKeys::new();
         self.radial_shift = 0.0;
-        self.survival_start_time = 0.0;
         self.init();
     }
 }

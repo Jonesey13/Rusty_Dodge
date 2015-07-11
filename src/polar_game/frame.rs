@@ -1,3 +1,7 @@
+/*
+Handles the Polar Frame
+*/
+
 use polar_game::object::{Part,Point};
 
 #[derive(Clone)]

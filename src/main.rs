@@ -1,3 +1,7 @@
+/*
+Main loop for the game.
+*/
+
 #[macro_use]
 extern crate glium;
 extern crate glium_text;
