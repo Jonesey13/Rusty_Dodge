@@ -9,6 +9,7 @@ in vec4 color_geometry;
 in vec2 emit_vertex;
 
 uniform vec2 center;
+uniform float aspect_ratio;
 
 out vec4 color;
 
@@ -17,6 +18,7 @@ bool angleCompare(in float a, in vec2 range);
 void main()
 {
   vec2 fragCoord = emit_vertex;
+  fragCoord.x = aspect_ratio * fragCoord.x;
   fragCoord -= center;
   float fragRadius = dot(fragCoord, fragCoord);
   bool radialOverlap = fragRadius >= dot(polar_geometry.x, polar_geometry.x)

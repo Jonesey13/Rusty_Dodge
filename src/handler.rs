@@ -37,10 +37,8 @@ pub struct Handler<'a>{
 impl<'a> Handler<'a>{
 
     pub fn new() -> Handler<'a>{
-        let screen_width = 1024;
-        let screen_height = 1024;
-        let display = glium::glutin::WindowBuilder::new().with_dimensions(screen_width,screen_height).build_glium().unwrap();
-        //.with_fullscreen(glium::glutin::get_primary_monitor())
+        let display = glium::glutin::WindowBuilder::new().with_fullscreen(glium::glutin::get_primary_monitor()).build_glium().unwrap();
+
 
         implement_vertex!(Vertices, polar, color);
 
@@ -56,8 +54,18 @@ impl<'a> Handler<'a>{
                                    player_width: Point{x: 0.02, y: 0.01}};
 
         let txt_system = glium_text::TextSystem::new(&display);
+        let font_file = match File::open(&Path::new("OpenSans.ttf")){
+            Ok(file) => file,
+            Err(_) => match File::open(&Path::new("src/OpenSans.ttf")){
+                Ok(file) => file,
+                Err(_) => match File::open(&Path::new("../OpenSans.ttf")){
+                    Ok(file) => file,
+                    Err(_) => panic!("Font Failed to Load"),
+                    }
+                }
+            };
 
-        let font = glium_text::FontTexture::new(&display, File::open(&Path::new("OpenSans.ttf")).unwrap(), 120).unwrap();
+        let font = glium_text::FontTexture::new(&display, font_file, 120).unwrap();
 
         Handler{
             vertex_buffer: glium::VertexBuffer::empty(&display, 0),
@@ -78,10 +86,12 @@ impl<'a> Handler<'a>{
     }
 
     pub fn update_rendering(&mut self){
-
+        let (w, h) = self.display.get_framebuffer_dimensions();
+        let aspect_ratio = (w as f32) / (h as f32);
         let uniforms = uniform! {
             radial_shift: self.radial_shift as f32,
             center: [0.0, 0.0],
+            aspect_ratio: aspect_ratio,
         };
 
         let vertices: Vec<Part>  = self.game.get_rendering_list();
@@ -106,7 +116,7 @@ impl<'a> Handler<'a>{
         text_string.push_str(&num_string);
         let text = glium_text::TextDisplay::new(&self.txt_system, &self.font, &text_string);
 
-        let matrix = [[0.05, 0.0, 0.0, 0.0],
+        let matrix = [[0.05 / aspect_ratio, 0.0, 0.0, 0.0],
                       [0.0, 0.05, 0.0, 0.0],
                       [0.0, 0.0, 1.0, 0.0],
                       [0.3, 0.9, 0.0, 1.0]];

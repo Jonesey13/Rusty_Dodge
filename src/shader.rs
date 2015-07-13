@@ -11,15 +11,23 @@ pub struct Shader{
 
 impl Shader{
     pub fn new(shaders: Vec<&'static str>)->Shader{
-
         let mut strings :Vec<String> = Vec::new();
         for shad in &shaders{
             let mut shader_file = match File::open(shad){
                 Ok(file) => file,
-                Err(_) => panic!("Failed to Load Shader {}", shad)
+                Err(_) => match File::open("src/".to_string() + shad){
+                    Ok(file) => file,
+                    Err(_) => match File::open("../".to_string() + shad){
+                        Ok(file) => file,
+                        Err(_) => panic!("Failed to Load Shader {}", shad),
+                    }
+                }
             };
             let mut string_shader = String::new();
-            shader_file.read_to_string(& mut string_shader).unwrap();
+            match shader_file.read_to_string(& mut string_shader){
+                Ok(_) => println!(""),
+                Err(_) => println!("Failed to Read {}", shad),
+                };
             strings.push(string_shader.clone());
             }
         Shader{
