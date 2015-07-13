@@ -3,6 +3,8 @@ Porting the Circular Dodge Game to Rust with Glium. This project is primarily to
 
 ![](https://github.com/Jonesey13/Rusty_Dodge/blob/master/rusty_dodge.png)
 
+There's also an experimental "tunnel mode" under development in a separate branch.  
+
 ##Controls
 Up/Down/Left/Right - Movement 
 
