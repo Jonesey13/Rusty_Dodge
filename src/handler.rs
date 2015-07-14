@@ -16,6 +16,7 @@ use std::fs::File;
 use std::path::Path;
 
 use shader;
+use high_score;
 use polar_game;
 use polar_game::object::{Part, Point};
 use polar_game::GameSetup;
@@ -31,6 +32,7 @@ pub struct Handler<'a>{
     game_setup: GameSetup,
     txt_system: glium_text::TextSystem,
     font: glium_text::FontTexture,
+    high_score: f64,
 }
 
 
@@ -66,6 +68,7 @@ impl<'a> Handler<'a>{
             };
 
         let font = glium_text::FontTexture::new(&display, font_file, 120).unwrap();
+        let high_score = high_score::load_high_score();
 
         Handler{
             vertex_buffer: glium::VertexBuffer::empty(&display, 0),
@@ -78,6 +81,7 @@ impl<'a> Handler<'a>{
             game_setup: game_setup,
             txt_system: txt_system,
             font: font,
+            high_score: high_score,
         }
     }
 
@@ -108,22 +112,43 @@ impl<'a> Handler<'a>{
                     &self.draw_param)
             .unwrap();
 
-        let mut text_string = "Survival Time: ".to_string();
-        let mut num_string = self.game.state.survival_time.to_string();
-        if num_string.len() > 4{
-            num_string.truncate(4);
+        let mut survival_string = "Survival Time: ".to_string();
+        let survival_time = self.game.state.survival_time;
+        if survival_time > self.high_score{
+            self.high_score = survival_time;
         }
-        text_string.push_str(&num_string);
-        let text = glium_text::TextDisplay::new(&self.txt_system, &self.font, &text_string);
+        let mut num_string = survival_time.to_string();
+        if num_string.len() > 5{
+            num_string.truncate(5);
+        }
+        survival_string.push_str(&num_string);
+
+        let mut high_score_string = "High Score: ".to_string();
+        num_string = self.high_score.to_string();
+        if num_string.len() > 5{
+            num_string.truncate(5);
+        }
+        high_score_string.push_str(&num_string);
+
+        let survival_text = glium_text::TextDisplay::new(&self.txt_system, &self.font, &survival_string);
+        let high_score_text = glium_text::TextDisplay::new(&self.txt_system, &self.font, &high_score_string);
 
         let matrix = [[0.05 / aspect_ratio, 0.0, 0.0, 0.0],
                       [0.0, 0.05, 0.0, 0.0],
                       [0.0, 0.0, 1.0, 0.0],
                       [0.3, 0.9, 0.0, 1.0]];
 
-        glium_text::draw(&text, &self.txt_system, &mut target, matrix, (1.0, 1.0, 0.0, 1.0));
+        glium_text::draw(&survival_text, &self.txt_system, &mut target, matrix, (1.0, 1.0, 0.0, 1.0));
+
+        let matrix = [[0.05 / aspect_ratio, 0.0, 0.0, 0.0],
+                      [0.0, 0.05, 0.0, 0.0],
+                      [0.0, 0.0, 1.0, 0.0],
+                      [0.3, 0.8, 0.0, 1.0]];
+
+        glium_text::draw(&high_score_text, &self.txt_system, &mut target, matrix, (1.0, 1.0, 0.0, 1.0));
 
         target.finish().unwrap();
+
     }
 
     pub fn update_input(&mut self){
@@ -159,7 +184,9 @@ impl<'a> Handler<'a>{
         else{
             self.game.input_keys.jump_radial = -0.0;
         }
-
+        if keys.exit{
+            high_score::write_high_score(self.high_score);
+        }
     }
 
     pub fn update_physics(&mut self){

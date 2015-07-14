@@ -12,6 +12,7 @@ extern crate rand;
 mod shader;
 mod polar_game;
 mod handler;
+mod high_score;
 
 /*
 #[test]
