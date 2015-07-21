@@ -75,7 +75,7 @@ impl<'a> Handler<'a>{
         let high_score = high_score::load_high_score();
 
         Handler{
-            vertex_buffer: glium::VertexBuffer::empty(&display, 0),
+            vertex_buffer: glium::VertexBuffer::empty(&display, 0).unwrap(),
             display: display,
             game: polar_game::PolarGame::new(game_setup),
             keys: GliumKeys::new(),
@@ -105,7 +105,7 @@ impl<'a> Handler<'a>{
         let vertices: Vec<Part>  = self.game.get_rendering_list();
         let shape: Vec<Vertices> = vertices.iter().map(|p| Vertices { polar: [p.radial.x, p.radial.y, p.angle.x, p.angle.y],
                                                                       color: p.color}).collect();
-        self.vertex_buffer = glium::VertexBuffer::dynamic(&self.display, shape);
+        self.vertex_buffer = glium::VertexBuffer::dynamic(&self.display, &shape).unwrap();
 
         let mut target = self.display.draw();
         target.clear_color(0.0, 0.0, 1.0, 1.0);
