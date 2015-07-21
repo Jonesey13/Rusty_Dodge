@@ -80,7 +80,7 @@ impl PolarGame{
             let new_flare = Flare::new(Point{x: r, y: a}, sa, v);
             self.flares.push(new_flare);
             self.time.previous_flare = self.time.elapsed;
-            let emit_average = (5.0 + self.time.elapsed - self.time.start ) / 5.0 + 4.0;
+            let emit_average = 10.0 + self.time.elapsed - self.time.start;
             let exp = Exp::new(emit_average);
             self.time.til_flare = exp.ind_sample(&mut rng);
         }

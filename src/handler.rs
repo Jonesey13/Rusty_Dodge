@@ -180,10 +180,10 @@ impl<'a> Handler<'a>{
             self.game.input_keys.jump_angle = 0.0;
         }
         if keys.up{
-            self.game.input_keys.jump_radial = 0.2;
+            self.game.input_keys.jump_radial = -0.2;
         }
         else if keys.down{
-            self.game.input_keys.jump_radial = -0.2;
+            self.game.input_keys.jump_radial = 0.2;
         }
         else{
             self.game.input_keys.jump_radial = -0.0;

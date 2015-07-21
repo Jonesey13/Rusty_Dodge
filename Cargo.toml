@@ -4,7 +4,7 @@ version = "0.7.2"
 authors = ["Jonesey13 <ad-jones@hotmail.co.uk>"]
 
 [dependencies]
-glium = "*"
-glium_text = "*"
-time = "*"
-rand = "*"
+glium = "0.8.0"
+glium_text = "0.5.0"
+time = "0.1.31"
+rand = "0.3.8"
