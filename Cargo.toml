@@ -1,6 +1,6 @@
 [package]
 name = "rusty_dodge"
-version = "0.7.0"
+version = "0.7.1"
 authors = ["Jonesey13 <ad-jones@hotmail.co.uk>"]
 
 [dependencies]

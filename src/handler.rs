@@ -39,8 +39,12 @@ pub struct Handler<'a>{
 impl<'a> Handler<'a>{
 
     pub fn new() -> Handler<'a>{
-        let display = glium::glutin::WindowBuilder::new().with_fullscreen(glium::glutin::get_primary_monitor()).build_glium().unwrap();
-
+        let display = if cfg!(any(target_os = "macos", target_os ="windows")){
+            glium::glutin::WindowBuilder::new().with_fullscreen(glium::glutin::get_primary_monitor()).build_glium().unwrap()
+        }
+        else{
+            glium::glutin::WindowBuilder::new().with_dimensions(800,600).build_glium().unwrap()
+        };
 
         implement_vertex!(Vertices, polar, color);
 
