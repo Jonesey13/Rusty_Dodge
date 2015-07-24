@@ -17,7 +17,7 @@ pub trait Object{
 }
 
 pub fn collision<S: Object, T: Object>( object_1: &S, object_2: &T) -> bool{
-    let epsilon = 0.000000001;
+    let epsilon = 0.000000000001;
     let mut overlap: bool = false;
     let parts_1 = object_1.get_collision_parts();
     let parts_2 = object_2.get_collision_parts();
@@ -26,8 +26,8 @@ pub fn collision<S: Object, T: Object>( object_1: &S, object_2: &T) -> bool{
             if p_1.radial.y < p_2.radial.x || p_1.radial.x > p_2.radial.y{
                 continue 'inner;
             }
-            let angle_1: Point = p_1.angle - p_1.angle.floor();
-            let angle_2: Point = p_2.angle - p_2.angle.floor();
+            let angle_1: Point = p_1.angle - Point{x: p_1.angle.x, y: p_1.angle.y - epsilon}.floor();
+            let angle_2: Point = p_2.angle - Point{x: p_2.angle.x, y: p_2.angle.y - epsilon}.floor();
 
             let is_less_1: bool = angle_1.x <= angle_1.y + epsilon;
             let is_less_2: bool = angle_2.x <= angle_2.y + epsilon;

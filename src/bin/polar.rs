@@ -1,28 +1,12 @@
 /*
-Main loop for the game.
+Pure Polar Version of the Game.
 */
+extern crate rusty_dodge;
 
-#[macro_use]
-extern crate glium;
-extern crate glium_text;
-extern crate time;
-extern crate rand;
-
-
-mod shader;
-mod polar_game;
-mod handler;
-mod high_score;
-
-/*
-#[test]
-fn my_test() {
-    panic!()
-}
- */
+use rusty_dodge::handler;
 
 fn main() {
-    let mut handler = handler::Handler::new();
+    let mut handler = handler::Handler::new("Polar");
     handler.init();
     'main: loop {
         handler.update_input();

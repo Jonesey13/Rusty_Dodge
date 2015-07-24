@@ -41,7 +41,7 @@ bool angleCompare(in float ang, in vec2 range)
 {
    ang -=  floor(ang);
    range.x -= floor(range.x);
-   range.y -= floor(range.y);
+   range.y -= floor(range.x);
 
   bool isless = range.x <= range.y;
   if (isless)

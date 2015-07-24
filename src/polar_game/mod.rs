@@ -2,14 +2,16 @@
 Central file for the polar_game module
 */
 
-pub mod player;
+mod player;
 pub mod object;
-pub mod enemy;
-pub mod flare;
-pub mod frame;
+mod enemy;
+mod flare;
+mod sun;
+mod frame;
 use polar_game::player::Player;
 use polar_game::object::{Part,Object,Point,collision};
 use polar_game::flare::Flare;
+use polar_game::sun::Sun;
 use polar_game::enemy::Enemy;
 use polar_game::frame::PolarFrame;
 use time;
@@ -21,6 +23,7 @@ use rand::distributions::range::Range;
 pub struct PolarGame{
     player: Player,
     flares: Vec<Flare>,
+    sun: Sun,
     pub input_keys: InputKeys,
     frame: PolarFrame,
     pub setup: GameSetup,
@@ -34,12 +37,13 @@ impl PolarGame{
         PolarGame{
             player: Player::new(setup.player_start, setup.player_width),
             flares: Vec::new(),
+            sun: Sun::new(1.0),
             input_keys: InputKeys{
                 jump_angle: 0.0,
                 jump_radial: 0.0,
             },
             time: Times::new(0.0),
-            frame: PolarFrame::new(20, 20, Point{x: 0.01, y: 0.02}, setup.radial_max),
+            frame: PolarFrame::new(0.5, 0.05, Point{x: 0.01, y: 0.02}, setup.radial_max),
             setup: setup,
             state: GameState::new(),
         }
@@ -63,10 +67,13 @@ impl PolarGame{
                 self.player.collide();;
             }
         }
+        if collision(&self.sun, &self.player){
+            self.player.collide();;
+        }
 
         let current_flares = self.flares.clone();
         let (_, flares_trimmed) : (Vec<Flare>, Vec<Flare>)
-            = current_flares.into_iter().partition(|f| f.terminate_flag(Point{x: -1.0, y: 2.0}));
+            = current_flares.into_iter().partition(|f| f.terminate_flag(Point{x: -1.0, y: self.setup.radial_max + 2.0}));
         self.flares = flares_trimmed;
 
 
@@ -102,6 +109,8 @@ impl PolarGame{
         for f in self.player.get_render_parts().iter(){
             rend_vec.push(f.clone());
         }
+        let sun_part = self.sun.get_render_parts()[0];
+        rend_vec.push(sun_part);
         for f in self.flares.iter(){
             let flare_part = f.get_render_parts()[0];
             rend_vec.push(flare_part);

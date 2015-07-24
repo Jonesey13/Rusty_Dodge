@@ -38,8 +38,8 @@ pub struct Handler<'a>{
 
 impl<'a> Handler<'a>{
 
-    pub fn new() -> Handler<'a>{
-        let display = if cfg!(any(target_os = "macos", target_os ="windows")){
+    pub fn new(mode: &'static str) -> Handler<'a>{
+        let display = if cfg!(any(target_os = "macos", target_os = "windows")){
             glium::glutin::WindowBuilder::new().with_fullscreen(glium::glutin::get_primary_monitor()).build_glium().unwrap()
         }
         else{
@@ -48,16 +48,25 @@ impl<'a> Handler<'a>{
 
         implement_vertex!(Vertices, polar, color);
 
+        let tunnel_mode = mode == "Tunnel";
 
-        let shader = shader::Shader::new(vec!["shaders/polar.vs", "shaders/polar.frag", "shaders/polar.geom"]);
+        let shader = if tunnel_mode{
+            shader::Shader::new(vec!["shaders/tunnel.vs", "shaders/polar.frag", "shaders/polar.geom"])
+        }
+        else{
+            shader::Shader::new(vec!["shaders/polar.vs", "shaders/polar.frag", "shaders/polar.geom"])
+        };
         let program = glium::Program::from_source(&display, &shader.shaders[0], &shader.shaders[1], Some(&shader.shaders[2])).unwrap();
 
         let mut draw_param =  glium::draw_parameters::DrawParameters::default();
         draw_param.blending_function = Some( BlendingFunction::Addition{source: LinearBlendingFactor::SourceAlpha,
                                                                         destination:  LinearBlendingFactor::OneMinusSourceAlpha});
-        let game_setup = GameSetup{radial_max: 2.0,
-                                   player_start: Point{x: 0.5, y: 0.75},
+        let radial_max = 8.0;
+        let game_setup = GameSetup{radial_max: radial_max,
+                                   player_start: Point{x: radial_max - 4.0, y: 0.75},
                                    player_width: Point{x: 0.02, y: 0.01}};
+
+
 
         let txt_system = glium_text::TextSystem::new(&display);
         let font_file = match File::open(&Path::new("OpenSans.ttf")){
@@ -97,7 +106,12 @@ impl<'a> Handler<'a>{
         let (w, h) = self.display.get_framebuffer_dimensions();
         let aspect_ratio = (w as f32) / (h as f32);
         let uniforms = uniform! {
+            // Tunnel Version Exclusive
+            length_total: (self.game.get_player_position().x + 0.25).max(1.0) as f32,
+            length_circle: 1.0,
+            // Polar Version Exclusive
             radial_shift: self.radial_shift as f32,
+            // General
             center: [0.0, 0.0],
             aspect_ratio: aspect_ratio,
         };
@@ -195,15 +209,15 @@ impl<'a> Handler<'a>{
 
     pub fn update_physics(&mut self){
         self.game.update_physics();
+        if self.keys.reset{
+            self.reset_game();
+        }
         let player_position = self.game.get_player_position();
         if player_position.x > 0.75 {
             self.radial_shift = player_position.x - 0.75;
         }
         else{
             self.radial_shift = 0.0;
-        }
-        if self.keys.reset{
-            self.reset_game();
         }
     }
 
