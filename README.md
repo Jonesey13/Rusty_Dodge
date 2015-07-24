@@ -1,7 +1,8 @@
 # Rusty_Dodge
 Porting the Circular Dodge Game to Rust with Glium. This project is primarily to help me learn how to code in Rust and OpenGL.
 
-To play the game in polar mode run "Cargo run --bin polar" and for tunnel mode run "Cargo run --bin tunnel". 
+To play the game in polar mode: "Cargo run --bin polar"
+For tunnel mode: "Cargo run --bin tunnel". 
 
 ![](https://github.com/Jonesey13/Rusty_Dodge/blob/master/rusty_dodge.png)
 
