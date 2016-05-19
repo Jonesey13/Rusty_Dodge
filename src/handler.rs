@@ -7,13 +7,12 @@ use glium;
 use glium::backend::glutin_backend::GlutinFacade;
 use glium::glutin::Event::{Closed,KeyboardInput};
 use glium::glutin::VirtualKeyCode;
-use glium::{DisplayBuild, Surface};
-use glium::draw_parameters::LinearBlendingFactor;
-use glium::draw_parameters::BlendingFunction;
+use glium::{DisplayBuild, Surface, Blend};
 use glium::glutin::ElementState::Pressed;
 use glium_text;
 use std::fs::File;
 use std::path::Path;
+use time;
 
 use shader;
 use high_score;
@@ -39,12 +38,12 @@ pub struct Handler<'a>{
 impl<'a> Handler<'a>{
 
     pub fn new(mode: &'static str) -> Handler<'a>{
-        let display = if cfg!(any(target_os = "macos", target_os = "windows")){
-            glium::glutin::WindowBuilder::new().with_fullscreen(glium::glutin::get_primary_monitor()).build_glium().unwrap()
-        }
-        else{
+        let display = // if cfg!(any(target_os = "macos", target_os = "windows")){
+        //     glium::glutin::WindowBuilder::new().with_fullscreen(glium::glutin::get_primary_monitor()).build_glium().unwrap()
+        // }
+        // else{
             glium::glutin::WindowBuilder::new().with_dimensions(800,600).build_glium().unwrap()
-        };
+        ;
 
         implement_vertex!(Vertices, polar, color);
 
@@ -59,8 +58,7 @@ impl<'a> Handler<'a>{
         let program = glium::Program::from_source(&display, &shader.shaders[0], &shader.shaders[1], Some(&shader.shaders[2])).unwrap();
 
         let mut draw_param =  glium::draw_parameters::DrawParameters::default();
-        draw_param.blending_function = Some( BlendingFunction::Addition{source: LinearBlendingFactor::SourceAlpha,
-                                                                        destination:  LinearBlendingFactor::OneMinusSourceAlpha});
+        draw_param.blend = Blend::alpha_blending();
         let radial_max = 8.0;
         let game_setup = GameSetup{radial_max: radial_max,
                                    player_start: Point{x: radial_max - 4.0, y: 0.75},
@@ -108,11 +106,11 @@ impl<'a> Handler<'a>{
         let uniforms = uniform! {
             // Tunnel Version Exclusive
             length_total: (self.game.get_player_position().x + 0.25).max(1.0) as f32,
-            length_circle: 1.0,
+            length_circle: 1.0 as f32,
             // Polar Version Exclusive
             radial_shift: self.radial_shift as f32,
             // General
-            center: [0.0, 0.0],
+            center: [0.0 as f32, 0.0 as f32],
             aspect_ratio: aspect_ratio,
         };
 
@@ -121,6 +119,7 @@ impl<'a> Handler<'a>{
                                                                       color: p.color}).collect();
         self.vertex_buffer = glium::VertexBuffer::dynamic(&self.display, &shape).unwrap();
 
+        let pre_time = time::precise_time_s();
         let mut target = self.display.draw();
         target.clear_color(0.0, 0.0, 1.0, 1.0);
         target.draw(&self.vertex_buffer,
@@ -166,7 +165,8 @@ impl<'a> Handler<'a>{
         glium_text::draw(&high_score_text, &self.txt_system, &mut target, matrix, (1.0, 1.0, 0.0, 1.0));
 
         target.finish().unwrap();
-
+        let after_time = time::precise_time_s();
+        println!("{}", after_time - pre_time);
     }
 
     pub fn update_input(&mut self){
