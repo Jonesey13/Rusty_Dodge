@@ -1,5 +1,5 @@
 /*
-Tunnel Version of the Game.
+Pure Polar Version of the Game.
 */
 extern crate rusty_dodge;
 
@@ -8,7 +8,8 @@ use std::env;
 
 fn main() {
     env::set_var("RUST_BACKTRACE", "1");
-    let mut handler = handler::Handler::new("Tunnel");
+
+    let mut handler = handler::Handler::new("Polar");
     handler.init();
     'main: loop {
         handler.update_input();

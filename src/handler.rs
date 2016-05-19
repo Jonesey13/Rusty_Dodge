@@ -12,7 +12,6 @@ use glium::glutin::ElementState::Pressed;
 use glium_text;
 use std::fs::File;
 use std::path::Path;
-use time;
 
 use shader;
 use high_score;
@@ -38,12 +37,12 @@ pub struct Handler<'a>{
 impl<'a> Handler<'a>{
 
     pub fn new(mode: &'static str) -> Handler<'a>{
-        let display = // if cfg!(any(target_os = "macos", target_os = "windows")){
-        //     glium::glutin::WindowBuilder::new().with_fullscreen(glium::glutin::get_primary_monitor()).build_glium().unwrap()
-        // }
-        // else{
+        let display = if cfg!(any(target_os = "macos", target_os = "windows")){
+            glium::glutin::WindowBuilder::new().with_fullscreen(glium::glutin::get_primary_monitor()).build_glium().unwrap()
+        }
+        else{
             glium::glutin::WindowBuilder::new().with_dimensions(800,600).build_glium().unwrap()
-        ;
+        };
 
         implement_vertex!(Vertices, polar, color);
 
@@ -119,7 +118,6 @@ impl<'a> Handler<'a>{
                                                                       color: p.color}).collect();
         self.vertex_buffer = glium::VertexBuffer::dynamic(&self.display, &shape).unwrap();
 
-        let pre_time = time::precise_time_s();
         let mut target = self.display.draw();
         target.clear_color(0.0, 0.0, 1.0, 1.0);
         target.draw(&self.vertex_buffer,
@@ -165,8 +163,6 @@ impl<'a> Handler<'a>{
         glium_text::draw(&high_score_text, &self.txt_system, &mut target, matrix, (1.0, 1.0, 0.0, 1.0));
 
         target.finish().unwrap();
-        let after_time = time::precise_time_s();
-        println!("{}", after_time - pre_time);
     }
 
     pub fn update_input(&mut self){
